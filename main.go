@@ -168,7 +168,7 @@ func (m *Main) seedDatabase() {
 	}
 
 	var testID int
-	if err := m.db.QueryRow(`SELECT id FROM launchers LIMIT 1`).Scan(&testID); err != sql.ErrNoRows {
+	if err := m.db.QueryRow(`SELECT id FROM launchers LIMIT 1`).Scan(&testID); err == sql.ErrNoRows {
 		// continue
 	} else if err != nil {
 		panic(err)
