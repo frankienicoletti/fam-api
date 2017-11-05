@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"net/http"
 	"time"
 
@@ -44,6 +45,13 @@ func main() {
 		{CustomerID: 100930000, AccountID: 100900000},
 	}
 
+	var testID int
+	if err := m.db.QueryRow(`SELECT id FROM launchers LIMIT 1`).Scan(&testID); err != nil {
+		panic(err)
+	} else if testID != 0 {
+		return // do not run script if db is already seeded
+	}
+
 	for i, cust := range launchers {
 		var jsonStr = []byte(fmt.Sprintf(`{"customer_id": %v}`, cust.CustomerID))
 		req, err := http.NewRequest("POST", fmt.Sprintf("%s/%s", BaseURL, "customers"), bytes.NewBuffer(jsonStr))
@@ -68,13 +76,14 @@ func main() {
 		}
 
 		c := data[0].Customers[0]
+		interestRate := rand.Float64() * 20
 		if err := m.db.QueryRow(`INSERT INTO launchers (
         customer_id
       , account_id
       , first_name
       , last_name
+			, interest_rate
       , credit_limit
-      , balance
       , due_date
     ) VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING id`,
@@ -82,21 +91,22 @@ func main() {
 			cust.AccountID,
 			c.FirstName,
 			c.LastName,
-			500.00,
-			0,
+			interestRate,
+			1000.00,
 			time.Now(),
 		).Scan(&launchers[i].ID); err != nil {
 			fmt.Println(err)
 		}
 
-		if err := m.getTransactions(launchers[i].ID, launchers[i].CustomerID); err != nil {
+		if err := m.getTransactions(launchers[i].ID, launchers[i].CustomerID, interestRate); err != nil {
 			panic(err)
 		}
 	}
+	fmt.Println("capital one data seeded in database")
 }
 
 // getTransactions retrieves transactions for the provided ids.
-func (m *Main) getTransactions(id int, customerID int64) error {
+func (m *Main) getTransactions(id int, customerID int64, interestRate float64) error {
 	var jsonStr = []byte(fmt.Sprintf(`{"customer_id": %v}`, customerID))
 	req, err := http.NewRequest("POST", fmt.Sprintf("%s/%s", BaseURL, "transactions"), bytes.NewBuffer(jsonStr))
 	if err != nil {
@@ -121,9 +131,9 @@ func (m *Main) getTransactions(id int, customerID int64) error {
 		panic(err)
 	}
 
-	var totalRewards float64
+	var totalRewards, totalBalance float64
 	for _, trans := range data[0].Customers[0].Transactions {
-		date, _ := time.Parse("January", trans.Month)
+		// date, _ := time.Parse("January", trans.Month)
 		if _, err := m.db.Exec(`INSERT INTO transactions (
 	      id
 	    , launchers_id
@@ -136,15 +146,17 @@ func (m *Main) getTransactions(id int, customerID int64) error {
 			id,
 			launcher.TransactionTypeCharge,
 			trans.Merchant,
-			trans.Amount,
-			time.Date(trans.Year, date.Month(), trans.Day, 0, 0, 0, 0, time.UTC),
+			trans.Amount/100,
+			time.Date(trans.Year, 10, trans.Day, 0, 0, 0, 0, time.UTC),
 		); err != nil {
 			fmt.Println(err)
 		}
 		totalRewards += trans.RewardsEarned
+		totalBalance += trans.Amount / 100
 	}
 
-	if _, err := m.db.Exec(`UPDATE launchers SET reward_balance = $1 WHERE id = $2`, totalRewards, id); err != nil {
+	minPayment := (totalBalance * 0.1) * (1 + interestRate/1200)
+	if _, err := m.db.Exec(`UPDATE launchers SET reward_balance = $1, balance = $2, minimum_payment = $3 WHERE id = $4`, totalRewards, totalBalance, minPayment, id); err != nil {
 		fmt.Println(err)
 	}
 

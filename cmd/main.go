@@ -27,9 +27,9 @@ func main() {
 	}
 
 	router := mux.NewRouter()
-	router.HandleFunc("/launcher/{id}", m.handleGetLauncher).Methods("GET")
-	router.HandleFunc("/launcher/{id}/transactions", m.handleGetTransactions).Methods("GET")
-	router.HandleFunc("/payoff", m.handlePayoff).Methods("POST")
+	router.HandleFunc("/launchers/{id}", m.handleGetLauncher).Methods("GET")
+	router.HandleFunc("/launchers/{id}/transactions", m.handleGetTransactions).Methods("GET")
+	router.HandleFunc("/launchers/{id}/payoff", m.handlePayoff).Methods("POST")
 
 	log.Fatal(http.ListenAndServe(":6000", router))
 }
@@ -42,6 +42,7 @@ func (m *Main) handleGetLauncher(w http.ResponseWriter, req *http.Request) {
       id
     , first_name
     , last_name
+		, interest_rate
     , credit_limit
     , balance
     , due_date
@@ -53,14 +54,16 @@ func (m *Main) handleGetLauncher(w http.ResponseWriter, req *http.Request) {
 		&l.ID,
 		&l.FirstName,
 		&l.LastName,
-		&l.Balance,
+		&l.InterestRate,
 		&l.CreditLimit,
+		&l.Balance,
 		&l.DueDate,
 		&l.MinimumPayment,
 	); err != nil {
 		log.Fatal(err)
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(l)
 }
 
@@ -100,19 +103,42 @@ func (m *Main) handleGetTransactions(w http.ResponseWriter, req *http.Request) {
 		panic(err)
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(transactions)
 }
 
 func (m *Main) handlePayoff(w http.ResponseWriter, req *http.Request) {
+	params := mux.Vars(req)
+
 	var p launcher.Payoff
 	if err := json.NewDecoder(req.Body).Decode(&p); err != nil {
 		panic(err)
 	}
+
+	var balance, interestRate float64
+	if err := m.db.QueryRow(`SELECT
+			  balance
+			, interest_rate
+		FROM launchers
+		WHERE id = $1`,
+		params["id"],
+	).Scan(
+		&balance,
+		&interestRate,
+	); err != nil {
+		log.Fatal(err)
+	}
+
+	if p.Balance == 0 {
+		p.Balance = balance
+	}
+	p.InterestRate = interestRate
 
 	if err := p.Calculate(); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(p)
 }

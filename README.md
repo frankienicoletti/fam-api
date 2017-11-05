@@ -3,6 +3,11 @@ Capital One {FAM} Hackathon backend
 
 ### Run
 
+To start a postgres docker container:
+```
+$ docker run --name launcherdb -p 5432:5432 -e POSTGRES_USER=postgres -d postgres
+```
+
 ```
 $ glide install
 $ docker run -p 4000:6000 fam-api

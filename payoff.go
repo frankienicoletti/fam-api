@@ -21,6 +21,18 @@ type Payoff struct {
 
 	// Total interest paid over the life of the balance.
 	TotalInterestCost float64 `json:"total_interest_cost"`
+
+	// Graph is an array of GraphData structs used for creating charts on the front end.
+	Graph []GraphData `json:"graph"`
+}
+
+// GraphData represents a row of graph data.
+// (Principal + interest = previous month balance)
+type GraphData struct {
+	Principal float64 `json:"principal"`
+	Interest  float64 `json:"interest"`
+	Balance   float64 `json:"balance"`
+	Month     int     `json:"month"`
 }
 
 // Calculate calculates either the total months or monthly payment for the payoff.
@@ -31,9 +43,28 @@ func (p *Payoff) Calculate() error {
 
 	mpr := p.InterestRate / 1200                    // monthly percentage rate
 	if p.TotalMonths > 0 && p.MonthlyPayment == 0 { // Calculate by number of months
-		p.MonthlyPayment = p.Balance * mpr / math.Pow(1-1/(1+mpr), float64(p.TotalMonths)) * -1 * (1 + mpr)
-	} else if p.TotalMonths == 0 && p.MonthlyPayment > 0 { // Calculate by monthly payment
-		p.TotalMonths = int(math.Ceil(math.Log(-1*-p.MonthlyPayment/p.Balance*mpr) / math.Log(1+mpr)))
+		if p.InterestRate <= 0 {
+			return errors.New("interest rate must be greater than zero to calculate monthly payment")
+		}
+		// Calculate monthly payment.
+		p.MonthlyPayment = p.Balance * mpr / (1 - 1/math.Pow(1+mpr, float64(p.TotalMonths)))
+	}
+
+	// Build graph.
+	currentPrinciple := p.Balance
+	month := 1
+	for currentPrinciple > 0 {
+		var gd GraphData
+		gd.Interest = currentPrinciple * mpr          // current monthly interest
+		gd.Principal = p.MonthlyPayment - gd.Interest // principal paid each month
+		gd.Balance = currentPrinciple - gd.Principal  // balance after payment
+		gd.Month = month
+		currentPrinciple = gd.Balance
+		p.Graph = append(p.Graph, gd)
+		month++
+	}
+	if p.TotalMonths == 0 {
+		p.TotalMonths = len(p.Graph)
 	}
 
 	p.TotalInterestCost = p.Balance * mpr * float64(p.TotalMonths)

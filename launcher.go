@@ -7,10 +7,11 @@ import "time"
 // Launcher defines a "Launcher" kid's credit card.
 type Launcher struct {
 	ID             int       `json:"id"`
-	CustomerID     int64     `json:"customer_id"`
-	AccountID      int64     `json:"account_id"`
+	CustomerID     int64     `json:"customer_id,omitempty"`
+	AccountID      int64     `json:"account_id,omitempty"`
 	FirstName      string    `json:"first_name"`
 	LastName       string    `json:"last_name"`
+	InterestRate   float64   `json:"interest_rate"`
 	CreditLimit    int       `json:"credit_limit"`    // Internal
 	Balance        float64   `json:"balance"`         // Internal
 	DueDate        time.Time `json:"due_date"`        // Internal
@@ -59,8 +60,8 @@ const (
 // Transaction defines a credit card transaction.
 type Transaction struct {
 	ID            int64     `json:"transaction_id"`
-	LauncherID    int       `json:"launcher_id"` // Internal
-	CustomerID    int64     `json:"customer_id"`
+	LauncherID    int       `json:"launcher_id,omitempty"` // Internal
+	CustomerID    int64     `json:"customer_id,omitempty"`
 	Type          string    `json:"type"` // Internal
 	Merchant      string    `json:"merchant_name"`
 	Amount        float64   `json:"amount"`
@@ -68,5 +69,5 @@ type Transaction struct {
 	Month         string    `json:"month,omitempty"`
 	Year          int       `json:"year,omitempty"`
 	Date          time.Time `json:"date"`
-	RewardsEarned float64   `json:"rewards_earned"`
+	RewardsEarned float64   `json:"rewards_earned,omitempty"`
 }
