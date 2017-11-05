@@ -60,6 +60,13 @@ func (p *Payoff) Calculate() error {
 		gd.Balance = currentPrinciple - gd.Principal  // balance after payment
 		gd.Month = month
 		currentPrinciple = gd.Balance
+
+		// Last payment
+		if gd.Balance < 0 {
+			gd.Balance = 0
+			gd.Principal = p.Graph[len(p.Graph)-1].Balance
+		}
+
 		p.Graph = append(p.Graph, gd)
 		month++
 	}
