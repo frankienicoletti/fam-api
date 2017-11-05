@@ -17,13 +17,13 @@ $ docker run -p 4000:6000 fam-api
 
 If changes have been made to the API, you may need to run `glide install` if the dependencies have changed, and you will need to build and run the container again.
 
-If the containers have been stopped by the repo has not been updated, `docker start <container name or id>` for both postgres and fam-api as necessary. 
+If the containers have been stopped by the repo has not been updated, `docker start <container name or id>` for both postgres and fam-api as necessary.
 
 API will run on `localhost:4000`
 
 ### API
 
-#### /launcher/{id}
+#### /launchers/{id}
 Retrieves a Launcher credit card account.
 
 Accepts an id in the url and returns:
@@ -40,7 +40,7 @@ Accepts an id in the url and returns:
 }
 ```
 
-#### /launcher/{id}/transactions
+#### /launchers/{id}/transactions
 Retrieves transactions for a Launcher credit card.
 
 Accepts an id in the url and returns:
@@ -63,7 +63,7 @@ Accepts an id in the url and returns:
 ]
 ```
 
-#### /payoff
+#### launchers/{id}/payoff
 Calculates the payoff of a balance.
 
 Accepts the following body; either total number of months or monthly payment may be provided:
