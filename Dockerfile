@@ -11,7 +11,7 @@ ADD . /go/src/github.com/katenicoletti/fam-api
 RUN cd $GOPATH/src/github.com/katenicoletti/fam-api
 RUN go install
 
-# Make port 80 available to the world outside this container
+# Make port 6000 available to the world outside this container
 EXPOSE 6000
 
 # Define environment variable
