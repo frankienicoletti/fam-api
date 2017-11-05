@@ -168,7 +168,9 @@ func (m *Main) seedDatabase() {
 	}
 
 	var testID int
-	if err := m.db.QueryRow(`SELECT id FROM launchers LIMIT 1`).Scan(&testID); err != nil {
+	if err := m.db.QueryRow(`SELECT id FROM launchers LIMIT 1`).Scan(&testID); err != sql.ErrNoRows {
+		// continue
+	} else if err != nil {
 		panic(err)
 	} else if testID != 0 {
 		return // do not run script if db is already seeded
