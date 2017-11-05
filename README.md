@@ -25,14 +25,13 @@ Accepts an id in the url and returns:
 ```json
 {
     "id": 1,
-    "customer_id": 0,
-    "account_id": 0,
     "first_name": "Pepillo",
     "last_name": "Bulcroft",
-    "credit_limit": 0,
-    "balance": 500,
-    "due_date": "2017-11-04T20:53:38.550706Z",
-    "minimum_payment": 0
+    "interest_rate": 12.093205759592392,
+    "credit_limit": 1000,
+    "balance": 502.53080000000045,
+    "due_date": "2017-11-05T03:03:18.788217Z",
+    "minimum_payment": 50.7595140304111
 }
 ```
 
@@ -44,21 +43,17 @@ Accepts an id in the url and returns:
 [
   {
       "transaction_id": 100120001,
-      "launcher_id": 0,
-      "customer_id": 0,
       "type": "charge",
       "merchant_name": "chatbooks",
-      "amount": 136.34,
-      "date": "2017-09-08T00:00:00Z"
+      "amount": 1.3634,
+      "date": "2017-10-08T00:00:00Z"
   },
   {
       "transaction_id": 100120002,
-      "launcher_id": 0,
-      "customer_id": 0,
       "type": "charge",
       "merchant_name": "google *fantasy legend",
-      "amount": 87.55,
-      "date": "2017-03-15T00:00:00Z"
+      "amount": 0.8755,
+      "date": "2017-10-15T00:00:00Z"
   }
 ]
 ```
@@ -85,9 +80,23 @@ Returns:
 ```json
 {
     "balance": 100,
-    "interest_rate": 10,
-    "total_months": 2,
-    "monthly_payment": 55.00,
-    "total_interest_cost": 1.6666666666666667
+    "interest_rate": 12.093205759592392,
+    "total_months": 23,
+    "monthly_payment": 5,
+    "total_interest_cost": 23.178644372552082,
+    "graph": [
+        {
+            "principal": 3.992232853367301,
+            "interest": 1.0077671466326992,
+            "balance": 96.0077671466327,
+            "month": 1
+        },
+        {
+            "principal": 4.032465264480614,
+            "interest": 0.9675347355193864,
+            "balance": 91.97530188215208,
+            "month": 2
+        }
+    ]
 }
 ```
