@@ -13,6 +13,7 @@ CREATE TABLE launchers (
   balance int default 0,
   due_date timestamp with time zone NOT NULL,
   minimum_payment int default 0,
+  reward_balance int default 0, 
   created timestamp with time zone default current_timestamp,
   modified timestamp with time zone default NULL
 );

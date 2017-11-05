@@ -1,5 +1,14 @@
 # Launcher
-Capital One &lt;FAM> Hackathon backend
+Capital One {FAM} Hackathon backend
+
+### Run
+
+```
+$ glide install
+$ docker run -p 4000:6000 fam-api
+```
+
+API will run on `localhost:4000`
 
 ### API
 

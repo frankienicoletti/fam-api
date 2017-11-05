@@ -37,30 +37,14 @@ func main() {
 	}
 
 	launchers := []launcher.Launcher{
-		{
-			CustomerID: 100120000, // Primary 100110000
-			AccountID:  100100000,
-		},
-		{
-			CustomerID: 100220000,
-			AccountID:  100200000,
-		},
-		{
-			CustomerID: 100240000,
-			AccountID:  100200000,
-		},
-		{
-			CustomerID: 100530000,
-			AccountID:  100500000,
-		},
-		{
-			CustomerID: 100930000,
-			AccountID:  100900000,
-		},
+		{CustomerID: 100120000, AccountID: 100100000},
+		{CustomerID: 100220000, AccountID: 100200000},
+		{CustomerID: 100240000, AccountID: 100200000},
+		{CustomerID: 100530000, AccountID: 100500000},
+		{CustomerID: 100930000, AccountID: 100900000},
 	}
 
 	for i, cust := range launchers {
-		fmt.Printf("customer id: %v", cust.CustomerID)
 		var jsonStr = []byte(fmt.Sprintf(`{"customer_id": %v}`, cust.CustomerID))
 		req, err := http.NewRequest("POST", fmt.Sprintf("%s/%s", BaseURL, "customers"), bytes.NewBuffer(jsonStr))
 		if err != nil {
@@ -108,7 +92,6 @@ func main() {
 		if err := m.getTransactions(launchers[i].ID, launchers[i].CustomerID); err != nil {
 			panic(err)
 		}
-		fmt.Printf("customer id: %v completed", cust.CustomerID)
 	}
 }
 
@@ -138,8 +121,8 @@ func (m *Main) getTransactions(id int, customerID int64) error {
 		panic(err)
 	}
 
-	for i, trans := range data[0].Customers[0].Transactions {
-		fmt.Printf("transaction %d for customer id %v", i, customerID)
+	var totalRewards float64
+	for _, trans := range data[0].Customers[0].Transactions {
 		date, _ := time.Parse("January", trans.Month)
 		if _, err := m.db.Exec(`INSERT INTO transactions (
 	      id
@@ -158,6 +141,12 @@ func (m *Main) getTransactions(id int, customerID int64) error {
 		); err != nil {
 			fmt.Println(err)
 		}
+		totalRewards += trans.RewardsEarned
 	}
+
+	if _, err := m.db.Exec(`UPDATE launchers SET reward_balance = $1 WHERE id = $2`, totalRewards, id); err != nil {
+		fmt.Println(err)
+	}
+
 	return nil
 }

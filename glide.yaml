@@ -1,0 +1,4 @@
+package: github.com/katenicoletti/fam-api
+import:
+- package: github.com/gorilla/mux
+- package: github.com/lib/pq

@@ -58,14 +58,15 @@ const (
 
 // Transaction defines a credit card transaction.
 type Transaction struct {
-	ID         int64     `json:"transaction_id"`
-	LauncherID int       `json:"launcher_id"` // Internal
-	CustomerID int64     `json:"customer_id"`
-	Type       string    `json:"type"` // Internal
-	Merchant   string    `json:"merchant_name"`
-	Amount     float64   `json:"amount"`
-	Day        int       `json:"day,omitempty"`
-	Month      string    `json:"month,omitempty"`
-	Year       int       `json:"year,omitempty"`
-	Date       time.Time `json:"date"`
+	ID            int64     `json:"transaction_id"`
+	LauncherID    int       `json:"launcher_id"` // Internal
+	CustomerID    int64     `json:"customer_id"`
+	Type          string    `json:"type"` // Internal
+	Merchant      string    `json:"merchant_name"`
+	Amount        float64   `json:"amount"`
+	Day           int       `json:"day,omitempty"`
+	Month         string    `json:"month,omitempty"`
+	Year          int       `json:"year,omitempty"`
+	Date          time.Time `json:"date"`
+	RewardsEarned float64   `json:"rewards_earned"`
 }
