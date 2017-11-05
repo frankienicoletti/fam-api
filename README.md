@@ -1,18 +1,23 @@
 # Launcher
 Capital One {FAM} Hackathon backend
 
-### Run
+### Setup
 
-To start a postgres docker container:
+To create and start a postgres docker container:
 ```
 $ docker run --name launcherdb -p 5432:5432 -e POSTGRES_USER=postgres -d postgres
 ```
 
+To install dependencies, build and run the docker container:
 ```
 $ glide install
 $ docker build -t fam-api .
 $ docker run -p 4000:6000 fam-api
 ```
+
+If changes have been made to the API, you may need to run `glide install` if the dependencies have changed, and you will need to build and run the container again.
+
+If the containers have been stopped by the repo has not been updated, `docker start <container name or id>` for both postgres and fam-api as necessary. 
 
 API will run on `localhost:4000`
 
