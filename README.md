@@ -10,6 +10,7 @@ $ docker run --name launcherdb -p 5432:5432 -e POSTGRES_USER=postgres -d postgre
 
 ```
 $ glide install
+$ docker build -t fam-api .
 $ docker run -p 4000:6000 fam-api
 ```
 

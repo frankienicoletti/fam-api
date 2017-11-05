@@ -3,7 +3,7 @@ package launcher_test
 import (
 	"testing"
 
-	"github.com/katenicoletti/fam-api"
+	"github.com/katenicoletti/fam-api/launcher"
 )
 
 func TestPayoff_MonthlyPayment(t *testing.T) {
